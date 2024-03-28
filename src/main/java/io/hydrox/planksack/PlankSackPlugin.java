@@ -154,6 +154,7 @@ public class PlankSackPlugin extends Plugin
 	private final List<BuildMenuItem> buildMenuItems = new ArrayList<>();
 
 	private boolean watchForAnimations = false;
+	private boolean ignoreAnimation = false;
 	private int lastAnimation = -1;
 
 	@Override
@@ -241,7 +242,8 @@ public class PlankSackPlugin extends Plugin
 				}
 			}
 		}
-		else if (event.getMenuOption().equals("Repair") && MAHOGANY_HOMES_REPAIRS.contains(event.getId()))
+		else if (!ignoreAnimation
+				&& event.getMenuOption().equals("Repair") && MAHOGANY_HOMES_REPAIRS.contains(event.getId()))
 		{
 			watchForAnimations = true;
 			inventorySnapshot = createSnapshot(client.getItemContainer(InventoryID.INVENTORY));
@@ -262,6 +264,7 @@ public class PlankSackPlugin extends Plugin
 		{
 			return;
 		}
+		ignoreAnimation = true;
 
 		Widget widget = event.getScriptEvent().getSource();
 		int idx = WidgetInfo.TO_CHILD(widget.getId()) - CONSTRUCTION_WIDGET_BUILD_IDX_START;
@@ -355,6 +358,9 @@ public class PlankSackPlugin extends Plugin
 	@Subscribe
 	public void onAnimationChanged(AnimationChanged event)
 	{
+		if (ignoreAnimation){
+			ignoreAnimation = false;
+		}
 		if (!watchForAnimations || event.getActor() != client.getLocalPlayer() || client.getLocalPlayer() == null)
 		{
 			return;
